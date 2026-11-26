@@ -1,0 +1,66 @@
+---
+title: "Przystosowanie geostroficzne w równaniach płytkiej wody"
+subtitle: "Modelowanie układów przepływowych – projekt zaliczeniowy"
+author: "Weronika Rynkiewicz"
+lang: pl
+bibliography: literatura.bib
+format:
+  pdf:
+    documentclass: article
+    papersize: a4
+    fontsize: 11pt
+    geometry:
+      - margin=2cm
+    include-in-header:
+      text: |
+        \renewcommand{\topfraction}{0.9}
+        \renewcommand{\bottomfraction}{0.9}
+        \renewcommand{\textfraction}{0.05}
+        \renewcommand{\floatpagefraction}{0.9}
+    colorlinks: true
+---
+
+## Pytanie
+
+Jaka część początkowego wzniesienia powierzchni płynu pozostaje po swobodnej ewolucji w obracającym się układzie i jak zależy to od stosunku połowy szerokości zaburzenia $a$ do promienia deformacji Rossby'ego $L_d=\sqrt{gH}/f$?
+
+## Model i metoda
+
+Równania płytkiej wody z wykładu (płaskie dno, $h=H+\eta$) uzupełniono o siłę Coriolisa ze stałym parametrem $f$:
+$$
+\partial_t h + \nabla\!\cdot(h\vec u) = 0,\qquad
+\partial_t (hu) + \nabla\!\cdot(\vec u\,hu) = -gh\,\partial_x h + f\,hv,\qquad
+\partial_t (hv) + \nabla\!\cdot(\vec u\,hv) = -gh\,\partial_y h - f\,hu .
+$$
+Użyto solwera z zajęć (PyMPDATA [@pympdata]); siłę Coriolisa dodano w dwóch połówkach kroku jako dokładny obrót wektora $(hu,hv)$ o kąt $f\Delta t/2$, a brzegi są periodyczne. Na początku płyn spoczywa, a na powierzchni jest garb o wysokości $\eta_0=0{,}02H$: prostokątny w kanale (1D) lub okrągły (2D). Stan końcowy to średnia z ostatniego okresu inercyjnego $T_f=2\pi/f$.
+
+Teoria [@rossby; @vallis, rozdz. 3.9]: w przybliżeniu liniowym zachowana jest wirowość potencjalna $q=\partial_x v-\partial_y u-f\eta/H$, a stan końcowy jest w równowadze geostroficznej ($fv=g\,\partial_x\eta$, $fu=-g\,\partial_y\eta$), skąd dla stanu początkowego $\eta_I$:
+$$
+\eta - L_d^2\,\nabla^2\eta = \eta_I
+\qquad\Longleftrightarrow\qquad
+\tilde\eta(\vec k) = \frac{\tilde\eta_I(\vec k)}{1+k^2L_d^2}.
+$$
+Garb prostokątny to suma dwóch uskoków [@vallis, wzór 3.150], więc w środku pozostaje $\eta(0)/\eta_0=1-e^{-a/L_d}$; bez rotacji ($L_d\to\infty$) nie pozostaje nic.
+
+## Wyniki
+
+Bez rotacji garb rozpada się na dwa fronty biegnące z prędkością $\sqrt{gH}$ i w środku nie pozostaje nic, a z rotacją w środku pozostaje kopuła (@fig-profil; przebieg w czasie pokazuje dołączona animacja). Profil końcowy zgadza się z teorią z dokładnością $0{,}02\,\eta_0$ (w 2D: $0{,}05\,\eta_0$), a wysokość w środku dla $a/L_d=0{,}25\ldots4$ zgadza się z $1-e^{-a/L_d}$ z dokładnością $0{,}02$ (@fig-profil, @fig-ile).
+
+::: {layout-ncol=2}
+![Stan końcowy dla $a=L_d$: PyMPDATA i teoria.](profile_1d.pdf){#fig-profil}
+
+![Wysokość w środku po przystosowaniu w funkcji $a/L_d$.](retained.pdf){#fig-ile}
+:::
+
+Zbieżność (@fig-zbieznosc): stan końcowy dla $N=L_d/\Delta x=2\ldots16$ i liczb Couranta $c\,\Delta t/\Delta x=0{,}1;\ 0{,}2;\ 0{,}4$ porównano z rozwiązaniem dla $N=32$. Błąd maleje w przybliżeniu jak $\Delta x^2$, a $\Delta t$ praktycznie nie wpływa na wynik. Dla $N\gtrsim8$ błąd numeryczny jest mniejszy od różnicy między pełnymi równaniami a teorią liniową (ok. $10^{-3}\eta_0$).
+
+![Błąd RMS stanu końcowego względem rozwiązania dla $N=32$; linia przerywana: różnica między tym rozwiązaniem a teorią liniową.](convergence.pdf){#fig-zbieznosc width=48%}
+
+## Podsumowanie
+
+W obracającym się płynie wzniesienie powierzchni nie rozpływa się całkowicie: w środku pozostaje ułamek $1-e^{-a/L_d}$ początkowej wysokości. Zaburzenia dużo mniejsze od $L_d$ prawie całkowicie odpływają, jak bez rotacji, a dużo większe prawie całkowicie pozostają, otoczone przepływem geostroficznym.
+
+## Literatura
+
+::: {#refs}
+:::
