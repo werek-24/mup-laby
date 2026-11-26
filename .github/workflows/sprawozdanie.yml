@@ -1,0 +1,40 @@
+name: sprawozdanie
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - run: jupyter nbconvert --to notebook --execute --inplace --ExecutePreprocessor.timeout=3600 przystosowanie_geostroficzne.ipynb
+
+      - run: mv tmp*.gif animacja_2d.gif
+
+      - uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          tinytex: true
+
+      - run: quarto render sprawozdanie.qmd --to pdf
+
+      - id: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: sprawozdanie
+          path: |
+            sprawozdanie.pdf
+            animacja_2d.gif
+            przystosowanie_geostroficzne.ipynb
+
+      - run: |
+          echo "Sprawozdanie (artefakt): ${{ steps.upload.outputs.artifact-url }}" >> "$GITHUB_STEP_SUMMARY"
